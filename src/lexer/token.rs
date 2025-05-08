@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TokenTag {
     TodoGleich,  //'='
     IsEqual,  //'=='
@@ -21,18 +21,25 @@ pub enum TokenTag {
     },
     DocComment {
         value: String,
-    }
+    },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Position {
     pub line: usize, //zeile
-    pub column: usize, //zeichen in zeile (in byte)
+    pub line_byte: usize, //zeichen in zeile (in byte)
     pub byte_offset: usize, //byte position in file
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub tag: TokenTag,
-    pub position: Position,
+    pub start_position: Position,
+    pub end_position: Position,
+}
+
+impl Token {
+    pub fn new(tag: TokenTag, start_position: Position, end_position: Position) -> Self {
+        Self { tag, start_position, end_position }
+    }
 }

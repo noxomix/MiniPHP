@@ -14,7 +14,7 @@ use Kryptonit3\SickRage\SickRage;
 use Kryptonit3\Sonarr\Sonarr;
 
 analyzeRequest();
-/**
+/*
  * Takes an incoming request and makes sure it's authorized and valid
  */
 function analyzeRequest() {
