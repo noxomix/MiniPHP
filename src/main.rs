@@ -1,5 +1,6 @@
 use std::process::exit;
 use std::sync::Arc;
+use std::time::Instant;
 use crate::common::reader::{Reader};
 use crate::lexer::lexer::{Lexer, Tokenizer};
 use crate::lexer::token::Token;
@@ -10,12 +11,14 @@ mod common;
 fn main() {
     let file_path = "./php_files/test.php";
     let bytes = read(file_path);
+    let runtime_start = Instant::now();
     let tokens = lex(bytes);
-    println!("Number of Tokens found: {:?}", tokens.len());
-    for token in tokens {
-        println!("{:?}", token);
+    let runtime_duration = runtime_start.elapsed();
+    for token in &tokens {
+        println!("{:?}", &token);
     }
-
+    println!("Number of Tokens found: {:?}", tokens.len());
+    println!("Total runtime time: {:?}", runtime_duration);
 }
 
 fn read(file_path: &str) -> Arc<[u8]> {

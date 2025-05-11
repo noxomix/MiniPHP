@@ -1,4 +1,5 @@
-use crate::lexer::lexer::{BytesOperation, Lexer, Tokenizer};
+use crate::lexer::bytes_operation::BytesOperation;
+use crate::lexer::lexer::{Lexer, Tokenizer};
 use crate::lexer::token::TokenTag;
 
 impl Lexer {
@@ -20,7 +21,7 @@ impl Lexer {
                     if let Some(b'/') = self.look() {
                         self.consume_n(2);
                         //multiline comment has ended
-                        let value = unsafe { self.string_from_range_unchecked(start_position.byte_offset, self.position.byte_offset) };
+                        let value = unsafe { self.strquick(start_position.byte_offset, self.position.byte_offset) };
                         if is_doc {
                             self.push_token(TokenTag::DocComment { value }, start_position.clone());
                         } else {

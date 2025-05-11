@@ -12,8 +12,9 @@ pub enum TokenTag {
     ShiftLeft,  // '<<'
     IsNotEqual, // '!='
     StringLiteral {
+        debug_value: String,
         value: String,
-        dq: bool, //if its double-quoted (only relevant for debugging)
+        double_quoted: bool, //if its double-quoted (only relevant for debugging)
     },
     Comment {
         value: String,

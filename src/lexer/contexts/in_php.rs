@@ -1,7 +1,8 @@
 /*
     Default handler which will parse PHP context.
 */
-use crate::lexer::lexer::{BytesOperation, Lexer, LexerContext};
+use crate::lexer::bytes_operation::BytesOperation;
+use crate::lexer::lexer::{Lexer, LexerContext};
 
 impl Lexer {
     pub fn handle_php(&mut self) {
@@ -24,8 +25,8 @@ impl Lexer {
                     }
                 }
                 b'"' | b'\'' => {
-                    //self.context.push(LexerContext::InString);
-                    //return;
+                    self.context.push(LexerContext::InString);
+                    return;
                 },
                 _ => {},
             }
