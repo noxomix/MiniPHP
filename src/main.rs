@@ -9,7 +9,7 @@ mod lexer;
 mod common;
 
 fn main() {
-    let file_path = "./php_files/test.php";
+    let file_path = "./php_files/test_test.php";
     let bytes = read(file_path);
     let lexing_start = Instant::now();
     let tokens = lex(bytes);
