@@ -1,6 +1,6 @@
 #[derive(Debug, Clone)]
 pub enum TokenTag {
-    TodoGleich,  //'='
+    Assign,  //'='
     IsEqual,  //'=='
     IsIdentical, //'==='
     IsNotIdentical, //'!=='
@@ -12,7 +12,6 @@ pub enum TokenTag {
     ShiftLeft,  // '<<'
     IsNotEqual, // '!='
     StringLiteral {
-        debug_value: String,
         value: String,
         double_quoted: bool, //if its double-quoted (only relevant for debugging)
     },
@@ -23,10 +22,50 @@ pub enum TokenTag {
     DocComment {
         value: String,
     },
+    IfStatement, //if
+    ElseIfStatement, //else if, elseif
+    ElseStatement, //else
+    DoStatement, //do
+    WhileStatement, //while
+    ForStatement, //for
+    ForeachStatement, //foreach
+    BreakStatement, //break
+    ContinueStatement, //continue
+    ReturnStatement, //return
+    SwitchStatement, //switch
+    CaseStatement, //case
+    FunctionStatement, //function
+    ClassStatement, //class
+    TraitStatement, //trait
+    Variable, //'$hallo'
+    Plus, //'+'
+    Minus, //'-'
+    Division, //'/'
+    Multiply, //'*'
+    Modulo, //'%'
+    Power, //'**'
+    Increment, //'++'
+    Decrement, // --
+    AddAssign, // +=
+    SubAssign, // -=
+    MulAssign, // *=
+    DivAssign, // /=
+    ModAssign, // %=
+    PowerAssign, // **=
+    LogicalAnd,          // &&
+    LogicalOr,           // ||
+    AndKeyword,          // and
+    OrKeyword,           // or
+    XorKeyword,          // xor
+    BitAnd,              // &
+    BitOr,               // |
+    BitXor,              // ^
+    NullCoalesce,        // ??
+    NullCoalesceAssign,  // ??=
 }
 
 #[derive(Debug, Clone)]
-pub struct Position {
+pub struct DebugPosition {
     pub line: usize, //zeile
     pub line_byte: usize, //zeichen in zeile (in byte)
     pub byte_offset: usize, //byte position in file
@@ -35,12 +74,13 @@ pub struct Position {
 #[derive(Debug, Clone)]
 pub struct Token {
     pub tag: TokenTag,
-    pub start_position: Position,
-    pub end_position: Position,
+    pub start_position: usize,
+    pub end_position: usize,
 }
 
 impl Token {
-    pub fn new(tag: TokenTag, start_position: Position, end_position: Position) -> Self {
+    #[inline(always)]
+    pub fn new(tag: TokenTag, start_position: usize, end_position: usize) -> Self {
         Self { tag, start_position, end_position }
     }
 }

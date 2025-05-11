@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::sync::Arc;
 use crate::lexer::bytes_operation::BytesOperation;
-use crate::lexer::token::{Position, Token, TokenTag};
+use crate::lexer::token::{DebugPosition, Token, TokenTag};
 
 pub enum LexerContext {
     InHtml,           // Außerhalb von <?php, in reinem HTML
@@ -16,7 +16,8 @@ pub enum LexerContext {
 }
 
 pub struct Lexer {
-    pub position: Position,
+    //pub position: DebugPosition,
+    pub byte_offset: usize, //direkt im struct, weil DebugPosition auch später noch errechnet werden kann.
     pub bytes: Arc<[u8]>,
     pub tokens: Vec<Token>,
     pub context: Vec<LexerContext>
@@ -26,9 +27,7 @@ pub struct Lexer {
 impl Lexer {
     pub fn new(bytes: Arc<[u8]>) -> Lexer {
         Self {
-            position: Position {
-                line: 1, line_byte: 1, byte_offset: 0,
-            },
+            byte_offset: 0,
             bytes,
             tokens: vec![],
             context: vec![],
@@ -40,7 +39,7 @@ impl Lexer {
 pub trait Tokenizer {
     fn tokenize(&mut self) -> Vec<Token>;
     fn handle_context(&mut self);
-    fn push_token(&mut self, tag: TokenTag, start_position: Position);
+    fn push_token(&mut self, tag: TokenTag, start_position: usize);
 }
 impl Tokenizer for Lexer {
     fn tokenize(&mut self) -> Vec<Token> {
@@ -50,11 +49,12 @@ impl Tokenizer for Lexer {
             if self.look() == None {
               break;
             }
+            //todo: if self.errors ... break and debug
         }
         /* <-- datei zuende --> */
         self.tokens.clone()
     }
-
+    
     fn handle_context(&mut self) {
         match self.context.last() {
             Some(LexerContext::InHtml) => self.handle_html(),
@@ -68,9 +68,9 @@ impl Tokenizer for Lexer {
         }
     }
 
-    fn push_token(&mut self, tag: TokenTag, start_position: Position) {
+    fn push_token(&mut self, tag: TokenTag, start_position: usize) {
         self.tokens.push(
-            Token::new(tag, start_position, self.position.clone()) //todo: (+) methode die eine individuelle endposition zulässt.
+            Token::new(tag, start_position, self.byte_offset) //todo: (+) methode die eine individuelle endposition zulässt.
         )
     }
 }

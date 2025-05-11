@@ -4,7 +4,7 @@ use crate::lexer::token::TokenTag;
 
 impl Lexer {
     pub fn handle_comment_line(&mut self) {
-        let start_position = self.position.clone();
+        let start_offset = self.byte_offset;
         if self.current() == Some(b'#') {
             self.consume(); //'#'
         } else {
@@ -19,8 +19,8 @@ impl Lexer {
                         self.consume();
                     }
                     self.push_token(TokenTag::Comment {
-                        value: unsafe { self.strquick(start_position.byte_offset, self.position.byte_offset) },
-                        multiline: false}, start_position);
+                        value: unsafe { self.strquick(start_offset, self.byte_offset) },
+                        multiline: false}, start_offset);
                     self.context.pop();
                     return
                 },

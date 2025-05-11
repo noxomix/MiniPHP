@@ -4,7 +4,7 @@ use crate::lexer::token::TokenTag;
 
 impl Lexer {
     pub fn handle_string(&mut self) {
-        let start_position = self.position.clone();
+        let start_offset = self.byte_offset;
         let double_quoted = self.current() == Some(b'"');
         self.consume();
 
@@ -19,11 +19,10 @@ impl Lexer {
                     if double_quoted {
                         //end
                         self.push_token(TokenTag::StringLiteral {
-                            value: unsafe { self.strquick(start_position.byte_offset+1, self.position.byte_offset-1) },
-                            debug_value: unsafe { self.strquick(start_position.byte_offset, self.position.byte_offset) },
-                            double_quoted: true 
-                        }, start_position.clone());
-                        
+                            value: unsafe { self.strquick(start_offset+1, self.byte_offset-1) },
+                            double_quoted: true
+                        }, start_offset.clone());
+
                         self.context.pop();
                         self.consume(); //hinteres '"' zeichen wird nicht mehr gebraucht
                         return
@@ -33,10 +32,9 @@ impl Lexer {
                     if !double_quoted {
                         //end
                         self.push_token(TokenTag::StringLiteral {
-                            value: unsafe { self.strquick(start_position.byte_offset+1, self.position.byte_offset-1) },
-                            debug_value: unsafe { self.strquick(start_position.byte_offset, self.position.byte_offset) },
-                            double_quoted: false 
-                        }, start_position.clone());
+                            value: unsafe { self.strquick(start_offset+1, self.byte_offset-1) },
+                            double_quoted: false
+                        }, start_offset.clone());
                         self.context.pop();
                         self.consume(); //hinteres "'" zeichen wird nicht mehr gebraucht
                         return

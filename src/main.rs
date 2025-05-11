@@ -11,14 +11,14 @@ mod common;
 fn main() {
     let file_path = "./php_files/test.php";
     let bytes = read(file_path);
-    let runtime_start = Instant::now();
+    let lexing_start = Instant::now();
     let tokens = lex(bytes);
-    let runtime_duration = runtime_start.elapsed();
+    let lexing_duration = lexing_start.elapsed();
     for token in &tokens {
-        println!("{:?}", &token);
+        //println!("{:?}", &token);
     }
     println!("Number of Tokens found: {:?}", tokens.len());
-    println!("Total runtime time: {:?}", runtime_duration);
+    println!("Lexing time: {:?}", lexing_duration);
 }
 
 fn read(file_path: &str) -> Arc<[u8]> {
