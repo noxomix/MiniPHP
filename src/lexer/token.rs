@@ -37,7 +37,7 @@ pub enum TokenTag {
     FunctionStatement, //function
     ClassStatement, //class
     TraitStatement, //trait
-    Variable, //'$hallo'
+    Variable(String), //'$hallo'
     Plus, //'+'
     Minus, //'-'
     Division, //'/'
@@ -62,6 +62,29 @@ pub enum TokenTag {
     BitXor,              // ^
     NullCoalesce,        // ??
     NullCoalesceAssign,  // ??=
+    LeftParen,     // (
+    RightParen,    // )
+    LeftBrace,     // {
+    RightBrace,    // }
+    LeftBracket,   // [
+    RightBracket,  // ]
+    Semicolon,     // ;
+    Comma,         // ,
+    Dot,           // .
+    Colon,         // :
+    DoubleColon,   // ::
+    Arrow,         // ->
+    FatArrow,      // =>
+    ConcatAssign,  // .=
+    TernaryQuestion, // ?
+    TernaryColon,    // :
+    NumberLiteral(String),
+    BooleanLiteral(bool),
+    NullLiteral,
+    Identifier(String),
+    Whitespace,
+    Tab,
+    Newline,
 }
 
 #[derive(Debug, Clone)]

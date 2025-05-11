@@ -12,6 +12,9 @@ pub trait BytesOperation {
 
     unsafe fn strquick(&self, start: usize, end: usize) -> String;
     fn strrng(&self, start: usize, end: usize) -> String;
+
+    fn remaining(&self) -> &[u8];
+
 }
 impl BytesOperation for Lexer {
     #[inline(always)]
@@ -52,7 +55,7 @@ impl BytesOperation for Lexer {
             std::str::from_utf8_unchecked(&self.bytes[start..=end]).to_string()
         }
     }
-
+    
     #[inline(always)]
     fn strrng(&self, start: usize, end: usize) -> String {
         if start > end {
@@ -60,4 +63,10 @@ impl BytesOperation for Lexer {
         }
         todo!()
     }
+
+    #[inline(always)]
+    fn remaining(&self) -> &[u8] {
+        &self.bytes[self.byte_offset..]
+    }
+
 }
