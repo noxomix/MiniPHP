@@ -57,13 +57,13 @@ impl Tokenizer for Lexer {
     
     fn handle_context(&mut self) {
         match self.context.last() {
-            Some(LexerContext::InHtml) => self.handle_html(),
-            Some(LexerContext::InPhp) => self.handle_php(),
-            Some(LexerContext::InCommentLine) => self.handle_comment_line(),
-            Some(LexerContext::InCommentBlock) => self.handle_comment_block(),
-            Some(LexerContext::InString) => self.handle_string(),
+            Some(LexerContext::InHtml) => self.context_in_html(),
+            Some(LexerContext::InPhp) => self.context_in_php(),
+            Some(LexerContext::InCommentLine) => self.context_in_comment_line(),
+            Some(LexerContext::InCommentBlock) => self.context_in_comment_block(),
+            Some(LexerContext::InString) => self.context_in_string(),
             _ => {
-                self.handle_html()
+                self.context_in_html()
             }
         }
     }

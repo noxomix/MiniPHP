@@ -1,4 +1,6 @@
-#[derive(Debug, Clone)]
+use strum_macros::AsRefStr;
+
+#[derive(Debug, Clone, AsRefStr)]
 pub enum TokenTag {
     Assign,  //'='
     IsEqual,  //'=='
@@ -66,43 +68,95 @@ pub enum TokenTag {
     ConcatAssign,  // .=
     TernaryQuestion, // ?
     TernaryColon,    // :
-    NumberLiteral(String),
+    NumberLiteral(String), //mathematik
     BooleanLiteral(bool),
     NullLiteral,
     Identifier(String),
-    Whitespace, //' '
+    Whitespace, //' ' (whitespace sind auch \n und mehrere leerzeichen hintereinander, wir geben es nicht als string mit also muss man es bei bedarf selber parsen)
     Tab, //\t
-    Newline, //\n usw
+    //Newline, //\n usw
     NamespaceBackslash, //'\\'
     NumberNan, //NaN
     NumberInfinity, //INF
     Statement(StatementType),
     PhpCloseTag,
     PhpOpenTag {},
+    AccessModifier(AccessModifierType)
 }
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, AsRefStr)]
 pub enum StatementType {
-    As,
+    // Kontrollfluss
     If,
     Else,
     ElseIf,
+    Switch,
+    Case,
+    DefaultCase,
+    Match,        // seit PHP 8.0
+
+    // Schleifen
     Do,
     While,
     For,
     Foreach,
     Break,
     Continue,
-    Return,
-    Switch,
-    Case,
-    DefaultCase,
+
+    // Fehlerbehandlung
+    Try,
+    Catch,
+    Finally,
+    Throw,
+
+    // Funktionen & Klassen
     Function,
+    Return,
     Class,
     Trait,
+    Interface,
     Abstract,
+    Final,
+    Static,
     Namespace,
+
+    // Spezialblöcke / Meta
+    Declare,
+    Global,
+    Const,
+    Use,
+    Goto,
+    Yield,
+    YieldFrom,
+
+    // Ausdrucksbasierte Anweisungen
+    Exit,
+    Eval,
+    Empty,
+    Isset,
+    Unset,
+
+    // Sonstige häufige Sprachkonstrukte
+    Print,
+    Echo,
+    Include,
+    IncludeOnce,
+    Require,
+    RequireOnce,
+    As,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, AsRefStr)]
+pub enum AccessModifierType {
+    Public,
+    Private,
+    Protected,
+    Static,
+    Final,
+    Abstract,
+    Readonly,
+}
+
+
 
 #[derive(Debug, Clone)]
 pub struct DebugPosition {

@@ -3,7 +3,7 @@ use crate::lexer::lexer::{Lexer, Tokenizer};
 use crate::lexer::token::TokenTag;
 
 impl Lexer {
-    pub fn handle_comment_block(&mut self) {
+    pub fn context_in_comment_block(&mut self) {
         let mut is_doc = false;
         let start_offset = self.byte_offset;
         self.consume_n(2); //'/*'

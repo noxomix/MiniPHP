@@ -1773,6 +1773,7 @@ function fetchPlayerStatus() {
 		$jsonXML = xmlToJson($result);
 		$mc = $jsonXML['MediaContainer'] ?? false;
 		if ($mc) {
+		    $xyz = -INF;
 			$track = $mc['Track'] ?? [];
 			$video = $mc['Video'] ?? [];
 			$obj = array_merge($track, $video);

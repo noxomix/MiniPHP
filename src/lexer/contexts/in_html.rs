@@ -3,7 +3,7 @@ use crate::lexer::lexer::{Lexer, LexerContext, Tokenizer};
 use crate::lexer::token::{TokenTag};
 
 impl Lexer {
-    pub fn handle_html(&mut self) {
+    pub fn context_in_html(&mut self) {
         let start_position = self.byte_offset;
 
         while let Some(b) = self.current() {

@@ -3,7 +3,7 @@ use crate::lexer::lexer::{Lexer, Tokenizer};
 use crate::lexer::token::TokenTag;
 
 impl Lexer {
-    pub fn handle_string(&mut self) {
+    pub fn context_in_string(&mut self) {
         let start_offset = self.byte_offset;
         let double_quoted = self.current() == Some(b'"');
         self.consume();

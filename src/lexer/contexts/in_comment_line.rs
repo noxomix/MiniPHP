@@ -3,7 +3,7 @@ use crate::lexer::lexer::{Lexer, Tokenizer};
 use crate::lexer::token::TokenTag;
 
 impl Lexer {
-    pub fn handle_comment_line(&mut self) {
+    pub fn context_in_comment_line(&mut self) {
         let start_offset = self.byte_offset;
         if self.current() == Some(b'#') {
             self.consume(); //'#'
