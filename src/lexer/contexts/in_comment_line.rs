@@ -19,7 +19,7 @@ impl Lexer {
                         self.consume();
                     }
                     self.push_token(TokenTag::Comment {
-                        value: unsafe { self.strquick(start_offset, self.byte_offset) },
+                        /*value: unsafe { self.strquick(start_offset, self.byte_offset) },*/
                         multiline: false}, start_offset);
                     self.context.pop();
                     return

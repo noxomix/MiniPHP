@@ -63,7 +63,7 @@ impl Tokenizer for Lexer {
             Some(LexerContext::InCommentBlock) => self.handle_comment_block(),
             Some(LexerContext::InString) => self.handle_string(),
             _ => {
-                self.handle_php()
+                self.handle_html()
             }
         }
     }

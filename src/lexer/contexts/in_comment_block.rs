@@ -21,11 +21,11 @@ impl Lexer {
                     if let Some(b'/') = self.look() {
                         self.consume_n(2);
                         //multiline comment has ended
-                        let value = unsafe { self.strquick(start_offset, self.byte_offset) };
+                        /*let value = unsafe { self.strquick(start_offset, self.byte_offset) };*/
                         if is_doc {
-                            self.push_token(TokenTag::DocComment { value }, start_offset);
+                            self.push_token(TokenTag::DocComment { /*value*/ }, start_offset);
                         } else {
-                            self.push_token(TokenTag::Comment { value, multiline: true }, start_offset);
+                            self.push_token(TokenTag::Comment { /*value, */ multiline: true }, start_offset);
                         }
                         self.context.pop();
                         return

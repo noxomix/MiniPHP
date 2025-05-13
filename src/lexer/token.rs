@@ -12,31 +12,19 @@ pub enum TokenTag {
     ShiftLeft,  // '<<'
     IsNotEqual, // '!='
     StringLiteral {
-        value: String,
+        //value: String,
         double_quoted: bool, //if its double-quoted (only relevant for debugging)
     },
+    HtmlLiteral {
+      //  
+    },
     Comment {
-        value: String,
+        //value: String,
         multiline: bool,
     },
     DocComment {
-        value: String,
+        //value: String,
     },
-    IfStatement, //if
-    ElseIfStatement, //else if, elseif
-    ElseStatement, //else
-    DoStatement, //do
-    WhileStatement, //while
-    ForStatement, //for
-    ForeachStatement, //foreach
-    BreakStatement, //break
-    ContinueStatement, //continue
-    ReturnStatement, //return
-    SwitchStatement, //switch
-    CaseStatement, //case
-    FunctionStatement, //function
-    ClassStatement, //class
-    TraitStatement, //trait
     Variable(String), //'$hallo'
     Plus, //'+'
     Minus, //'-'
@@ -82,9 +70,38 @@ pub enum TokenTag {
     BooleanLiteral(bool),
     NullLiteral,
     Identifier(String),
-    Whitespace,
-    Tab,
-    Newline,
+    Whitespace, //' '
+    Tab, //\t
+    Newline, //\n usw
+    NamespaceBackslash, //'\\'
+    NumberNan, //NaN
+    NumberInfinity, //INF
+    Statement(StatementType),
+    PhpCloseTag,
+    PhpOpenTag {},
+}
+
+#[derive(Debug, Clone)]
+pub enum StatementType {
+    As,
+    If,
+    Else,
+    ElseIf,
+    Do,
+    While,
+    For,
+    Foreach,
+    Break,
+    Continue,
+    Return,
+    Switch,
+    Case,
+    DefaultCase,
+    Function,
+    Class,
+    Trait,
+    Abstract,
+    Namespace,
 }
 
 #[derive(Debug, Clone)]

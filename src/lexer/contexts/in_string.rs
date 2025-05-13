@@ -19,7 +19,7 @@ impl Lexer {
                     if double_quoted {
                         //end
                         self.push_token(TokenTag::StringLiteral {
-                            value: unsafe { self.strquick(start_offset+1, self.byte_offset-1) },
+                            //value: unsafe { self.strquick(start_offset+1, self.byte_offset-1) },
                             double_quoted: true
                         }, start_offset.clone());
 
@@ -32,7 +32,7 @@ impl Lexer {
                     if !double_quoted {
                         //end
                         self.push_token(TokenTag::StringLiteral {
-                            value: unsafe { self.strquick(start_offset+1, self.byte_offset-1) },
+                            //value: unsafe { self.strquick(start_offset+1, self.byte_offset-1) },
                             double_quoted: false
                         }, start_offset.clone());
                         self.context.pop();

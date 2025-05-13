@@ -1,9 +1,12 @@
 /*
     Default handler which will parse PHP context.
 */
+use std::string::ToString;
 use crate::lexer::bytes_operation::BytesOperation;
 use crate::lexer::lexer::{Lexer, LexerContext, Tokenizer};
+use crate::lexer::token::StatementType::{Abstract, As, Break, Case, Class, Continue, DefaultCase, Do, Else, ElseIf, For, Foreach, Function, If, Namespace, Return, Switch, Trait, While};
 use crate::lexer::token::TokenTag;
+use crate::lexer::token::TokenTag::Identifier;
 
 impl Lexer {
     pub fn handle_php(&mut self) {
@@ -33,6 +36,9 @@ impl Lexer {
                     self.context.push(LexerContext::InString);
                     return;
                 }, //'"' double-quoted string
+                b'0'..=b'9' => {
+                    self.match_number(); // delegiert an eigene Funktion
+                },
                 b'\'' => {
                     let start_offset = self.byte_offset;
                     current = self.consume();
@@ -40,7 +46,7 @@ impl Lexer {
                         match current {
                             Some(b'\'') => {
                                 self.push_token(TokenTag::StringLiteral {
-                                    value: unsafe { self.strquick(start_offset+1, self.byte_offset-1) },
+                                    //value: unsafe { self.strquick(start_offset+1, self.byte_offset-1) },
                                     double_quoted: false
                                 }, start_offset);
                                 break;
@@ -223,8 +229,14 @@ impl Lexer {
                 b'?' => {
                     let start = self.byte_offset;
                     match self.look() {
+                        Some(b'>') => {
+                            self.consume(); // consume '>'
+                            self.push_token(TokenTag::PhpCloseTag, start);
+                            self.context.pop();
+                            return
+                        }
                         Some(b'?') => {
-                            self.consume();
+                            self.consume(); // consume 2nd '?'
                             if self.look() == Some(b'=') {
                                 self.consume();
                                 self.push_token(TokenTag::NullCoalesceAssign, start);
@@ -232,9 +244,11 @@ impl Lexer {
                                 self.push_token(TokenTag::NullCoalesce, start);
                             }
                         }
-                        _ => self.push_token(TokenTag::TernaryQuestion, start),
+                        _ => {
+                            self.push_token(TokenTag::TernaryQuestion, start);
+                        }
                     }
-                },
+                }
                 b',' => {
                     self.push_token(TokenTag::Comma, self.byte_offset)
                 },
@@ -305,14 +319,50 @@ impl Lexer {
                 b'^' => {
                     self.push_token(TokenTag::BitXor, self.byte_offset);
                 }, //'^' bitwise <XOR>
-                b'a'..=b'z' | b'A'..=b'Z' | b'_' => {
-                    if let Some(tag) = self.match_keyword() {
-                        self.push_token(tag, self.byte_offset); // start offset ggf. vorher merken
+                b'\\' => {
+                    let start = self.byte_offset;
+                    if self.look() == Some(b'\\') {
+                        self.consume();
+                        self.push_token(TokenTag::NamespaceBackslash, start);
                     }
-                    //todo alles andere wie zB funktionsnamen, konstanten
+                }
+                b'a'..=b'z' | b'A'..=b'Z' | b'_' => {
+                    let start_position = self.byte_offset;
+
+                    if let Some(tag) = self.match_keyword() {
+                        self.push_token(tag, start_position);
+                    } else {
+                        let mut len = 1; // wir wissen: das erste Zeichen ist gültig
+                        // Zähle alle folgenden gültigen Identifier-Zeichen
+                        while let Some(b) = self.look_n(len) {
+                            if b.is_ascii_alphanumeric() || b == b'_' {
+                                len += 1;
+                            } else if b >= 0x80 {
+                                let utf_len = Self::utf8_char_len(b);
+                                if utf_len == 0 {
+                                    break;
+                                }
+
+                                // look_n gibt nur 1 Byte – prüfe, ob genug Daten da sind
+                                if self.byte_offset + len + utf_len - 1 >= self.bytes.len() {
+                                    break;
+                                }
+
+                                len += utf_len;
+                            } else {
+                                break;
+                            }
+                        }
+                        // Jetzt `len` gültige Bytes → konsumieren
+                        self.consume_n(len);
+                        // `byte_offset` zeigt auf das **letzte gültige Byte** → perfekt für inclusive strquick
+                        let ident = unsafe { self.strquick(start_position, self.byte_offset - 1) };
+                        self.push_token(TokenTag::Identifier(ident.to_string()), start_position);
+                        //println!("{:?}", ident.to_string());
+                    }
                 },
                 _ => {
-                    //println!("{:?}", current.unwrap() as char)
+                    println!("{:?} - {:?}", current.unwrap() as char, self.byte_offset);
                 }
             }
 
@@ -323,19 +373,34 @@ impl Lexer {
     //keyword matching
     fn match_keyword(&mut self) -> Option<TokenTag> {
         for &(word, ref tag) in KEYWORDS {
-            if self.remaining().starts_with(word) {
-                // danach darf kein a-zA-Z0-9_ folgen (sonst z.B. "returnValue")
-                if let Some(&b) = self.remaining().get(word.len()) {
-                    if b.is_ascii_alphanumeric() || b == b'_' {
-                        continue;
-                    }
+            let remaining = self.remaining();
+            if remaining.len() < word.len() {
+                continue;
+            }
+
+            // prüfe auf Wortende
+            if let Some(&b) = remaining.get(word.len()) {
+                if b.is_ascii_alphanumeric() || b == b'_' {
+                    continue;
                 }
+            }
+
+            let candidate = &remaining[..word.len()];
+
+            // effizient: Eingabe lowercasen (1×), gegen lowercase-Keyword vergleichen
+            let equal = candidate
+                .iter()
+                .zip(word.iter())
+                .all(|(a, b)| a.to_ascii_lowercase() == *b);
+
+            if equal {
                 self.consume_n(word.len());
                 return Some(tag.clone());
             }
         }
         None
     }
+
 
     fn utf8_char_len(first: u8) -> usize {
         match first {
@@ -347,24 +412,124 @@ impl Lexer {
         }
     }
 
+    fn match_number(&mut self) {
+        let start = self.byte_offset;
+
+        // Sonderformate: 0x, 0b, 0o
+        if self.look() == Some(b'x') || self.look() == Some(b'X') {
+            self.consume(); // x
+            while let Some(b) = self.look() {
+                if b.is_ascii_hexdigit() || b == b'_' {
+                    self.consume();
+                } else {
+                    break;
+                }
+            }
+            let value = unsafe { self.strquick(start, self.byte_offset) };
+            self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+            return;
+        }
+
+        if self.look() == Some(b'b') || self.look() == Some(b'B') {
+            self.consume(); // b
+            while let Some(b) = self.look() {
+                if b == b'0' || b == b'1' || b == b'_' {
+                    self.consume();
+                } else {
+                    break;
+                }
+            }
+            let value = unsafe { self.strquick(start, self.byte_offset) };
+            self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+            return;
+        }
+
+        if self.look() == Some(b'o') || self.look() == Some(b'O') {
+            self.consume(); // o
+            while let Some(b) = self.look() {
+                if b >= b'0' && b <= b'7' || b == b'_' {
+                    self.consume();
+                } else {
+                    break;
+                }
+            }
+            let value = unsafe { self.strquick(start, self.byte_offset) };
+            self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+            return;
+        }
+
+        // klassische Oktal: beginnt mit 0, gefolgt von 0–7
+        if self.bytes.get(start) == Some(&b'0') {
+            while let Some(b) = self.look() {
+                if b >= b'0' && b <= b'7' || b == b'_' {
+                    self.consume();
+                } else {
+                    break;
+                }
+            }
+            let value = unsafe { self.strquick(start, self.byte_offset) };
+            self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+            return;
+        }
+
+        // Dezimal/Gleitkommazahl mit optionalen Unterstrichen
+        let mut seen_dot = false;
+        let mut seen_exponent = false;
+
+        while let Some(b) = self.look() {
+            match b {
+                b'0'..=b'9' | b'_' => {self.consume();},
+                b'.' if !seen_dot => {
+                    seen_dot = true;
+                    self.consume();
+                }
+                b'e' | b'E' if !seen_exponent => {
+                    seen_exponent = true;
+                    self.consume();
+                    if let Some(b'+' | b'-') = self.look() {
+                        self.consume();
+                    }
+                }
+                _ => break,
+            }
+        }
+
+        let value = unsafe { self.strquick(start, self.byte_offset) };
+        self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+    } //muss noch mal angeschaut werden, zudem ist keine Binär oder Hex notation geparsed bisher..
 
 }
 
 // Reihenfolge nach Anfangsbuchstabe gruppiert, dann nach Länge sortiert
 const KEYWORDS: &[(&[u8], TokenTag)] = &[
-    (b"break", TokenTag::BreakStatement),
-    (b"case", TokenTag::CaseStatement),
-    (b"class", TokenTag::ClassStatement),
-    (b"continue", TokenTag::ContinueStatement),
-    (b"do", TokenTag::DoStatement),
-    (b"else", TokenTag::ElseStatement),
-    (b"elseif", TokenTag::ElseIfStatement),
-    (b"for", TokenTag::ForStatement),
-    (b"foreach", TokenTag::ForeachStatement),
-    (b"function", TokenTag::FunctionStatement),
-    (b"if", TokenTag::IfStatement),
-    (b"return", TokenTag::ReturnStatement),
-    (b"switch", TokenTag::SwitchStatement),
-    (b"trait", TokenTag::TraitStatement),
-    (b"while", TokenTag::WhileStatement),
+    (b"null", TokenTag::NullLiteral),
+    (b"break", TokenTag::Statement(Break)),
+    (b"case", TokenTag::Statement(Case)),
+    (b"class", TokenTag::Statement(Class)),
+    (b"continue", TokenTag::Statement(Continue)),
+    (b"do", TokenTag::Statement(Do)),
+    (b"else", TokenTag::Statement(Else)),
+    (b"elseif", TokenTag::Statement(ElseIf)),
+    (b"for", TokenTag::Statement(For)),
+    (b"foreach", TokenTag::Statement(Foreach)),
+    (b"as", TokenTag::Statement(As)),
+    (b"function", TokenTag::Statement(Function)),
+    (b"if", TokenTag::Statement(If)),
+    (b"return", TokenTag::Statement(Return)),
+    (b"switch", TokenTag::Statement(Switch)),
+    (b"trait", TokenTag::Statement(Trait)),
+    (b"while", TokenTag::Statement(While)),
+    (b"while", TokenTag::Statement(While)),
+    (b"abstract", TokenTag::Statement(Abstract)),
+    (b"default", TokenTag::Statement(DefaultCase)),
+    (b"namespace", TokenTag::Statement(Namespace)),
+
+    //spcial nummern:
+    (b"nan", TokenTag::NumberNan),
+    (b"inf", TokenTag::NumberInfinity),
+    (b"infinity", TokenTag::NumberInfinity),
+
+    //booleans
+    (b"false", TokenTag::BooleanLiteral(false)),
+    (b"true", TokenTag::BooleanLiteral(true)),
 ];
