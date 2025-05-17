@@ -61,7 +61,7 @@ impl Tokenizer for Lexer {
             Some(LexerContext::InPhp) => self.context_in_php(),
             Some(LexerContext::InCommentLine) => self.context_in_comment_line(),
             Some(LexerContext::InCommentBlock) => self.context_in_comment_block(),
-            Some(LexerContext::InString) => self.context_in_string(),
+            Some(LexerContext::InString) => self.context_in_dq_string(),
             _ => {
                 self.context_in_html()
             }
