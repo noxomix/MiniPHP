@@ -81,7 +81,8 @@ pub enum TokenTag {
     Statement(StatementType),
     PhpCloseTag,
     PhpOpenTag {},
-    AccessModifier(AccessModifierType)
+    AccessModifier(AccessModifierType),
+    StringInterpolation(String)
 }
 #[derive(Debug, Clone, PartialEq, Eq, AsRefStr)]
 pub enum StatementType {

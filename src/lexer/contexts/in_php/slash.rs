@@ -15,6 +15,7 @@ impl Lexer {
             }
             Some(b'*') => {
                 self.context.push(LexerContext::InCommentBlock);
+                //println!("In comment block {:?}", self.byte_offset);
                 return true;
                 //self.handle_comment_block()
             }

@@ -7,7 +7,8 @@ impl Lexer {
         let mut is_doc = false;
         let start_offset = self.byte_offset;
         self.consume_n(2); //'/*'
-        
+        //println!("Handle {:?}", self.byte_offset);
+
         //is it doc comment?
         if let Some(b'*') = self.current() {
             is_doc = true;
@@ -19,13 +20,14 @@ impl Lexer {
             match current {
                 Some(b'*') => {
                     if let Some(b'/') = self.look() {
-                        self.consume_n(2);
+                        self.consume();
                         //multiline comment has ended
-                        /*let value = unsafe { self.strquick(start_offset, self.byte_offset) };*/
                         if is_doc {
-                            self.push_token(TokenTag::DocComment { /*value*/ }, start_offset);
+                            self.push_token(TokenTag::DocComment{}, start_offset);
+                            self.consume();
                         } else {
-                            self.push_token(TokenTag::Comment { /*value, */ multiline: true }, start_offset);
+                            self.push_token(TokenTag::Comment{multiline: true}, start_offset);
+                            self.consume();
                         }
                         self.context.pop();
                         return

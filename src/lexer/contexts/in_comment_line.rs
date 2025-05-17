@@ -5,29 +5,28 @@ use crate::lexer::token::TokenTag;
 impl Lexer {
     pub fn context_in_comment_line(&mut self) {
         let start_offset = self.byte_offset;
+
+        // Konsumiere die Kommentar-Einleitung
         if self.current() == Some(b'#') {
-            self.consume(); //'#'
+            self.consume(); // '#'
         } else {
-            self.consume_n(2); //'//'
+            self.consume_n(2); // "//"
         }
 
-        let mut current = self.current();
-        loop {
-            match current {
-                Some(b'\n') | Some(b'\r') | None => {
-                    if let Some(b'\n') = self.look() {
-                        self.consume();
-                    }
-                    self.push_token(TokenTag::Comment {
-                        /*value: unsafe { self.strquick(start_offset, self.byte_offset) },*/
-                        multiline: false}, start_offset);
-                    self.context.pop();
-                    return
-                },
+        while let Some(b) = self.look() {
+            match b {
+                b'\n' | b'\r' => break, // ← Nur gucken, nicht konsumieren
                 _ => {
-                    current = self.consume();
+                    self.consume(); // ← alles andere konsumieren
                 }
             }
         }
+
+        self.push_token(TokenTag::Comment {
+            multiline: false,
+        }, start_offset);
+
+        self.context.pop();
+        self.consume(); //letztes zeichen trotzdem noch konsumieren damit der context_in_php matcher jetzt bei \n weiter macht.
     }
 }

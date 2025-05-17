@@ -5,39 +5,40 @@ use crate::lexer::token::{AccessModifierType, StatementType, TokenTag};
 impl Lexer {
     #[inline(always)]
     pub fn match_keywords(&mut self) {
-        let start_position = self.byte_offset;
+        let start = self.byte_offset;
+
         if let Some(tag) = self._find_keyword() {
-            self.push_token(tag, start_position);
-        } else {
-            let mut len = 1; // wir wissen: das erste Zeichen ist gültig
-            // Zähle alle folgenden gültigen Identifier-Zeichen
-            while let Some(b) = self.look_n(len) {
-                if b.is_ascii_alphanumeric() || b == b'_' {
-                    len += 1;
-                } else if b >= 0x80 {
-                    let utf_len = Self::utf8_char_len(b);
-                    if utf_len == 0 {
-                        break;
-                    }
+            self.push_token(tag, start);
+            return;
+        }
 
-                    // look_n gibt nur 1 Byte – prüfe, ob genug Daten da sind
-                    if self.byte_offset + len + utf_len - 1 >= self.bytes.len() {
-                        break;
-                    }
+        let mut lookahead = 0;
+        let mut last_valid = None;
 
-                    len += utf_len;
-                } else {
+        while let Some(b) = self.look_n(lookahead) {
+            if b.is_ascii_alphanumeric() || b == b'_' {
+                last_valid = Some(self.byte_offset + lookahead);
+                lookahead += 1;
+            } else if b >= 0x80 {
+                let len = Self::utf8_char_len(b);
+                if len == 0 || self.byte_offset + lookahead + len > self.bytes.len() {
                     break;
                 }
+                last_valid = Some(self.byte_offset + lookahead + len - 1);
+                lookahead += len;
+            } else {
+                break;
             }
-            // Jetzt `len` gültige Bytes → konsumieren
-            self.consume_n(len);
-            // `byte_offset` zeigt auf das **letzte gültige Byte** → perfekt für inclusive strquick
-            let ident = unsafe { self.strquick(start_position, self.byte_offset - 1) };
-            self.push_token(TokenTag::Identifier(ident.to_string()), start_position);
-            //println!("{:?}", ident.to_string());
+        }
+
+        if let Some(end) = last_valid {
+            let ident = unsafe { self.strquick(start, end) }.to_string();
+            self.consume_n(end - self.byte_offset); // nur bis **vor** dem letzten Zeichen
+            self.push_token(TokenTag::Identifier(ident), start);
+            // self.current() zeigt jetzt korrekt auf das letzte gültige Zeichen
         }
     }
+
     fn _find_keyword(&mut self) -> Option<TokenTag> {
         let remaining = self.remaining();
 
@@ -46,7 +47,7 @@ impl Lexer {
                 continue;
             }
 
-            // prüfe auf Bezeichnerende: nächstes Zeichen darf kein Buchstabe/Ziffer/_ sein
+            // Zeichen danach darf kein a-zA-Z0-9_ sein → sonst z. B. "returnValue"
             if let Some(&b) = remaining.get(word.len()) {
                 if b.is_ascii_alphanumeric() || b == b'_' {
                     continue;
@@ -55,7 +56,6 @@ impl Lexer {
 
             let candidate = &remaining[..word.len()];
 
-            // effizient vergleichen: ASCII case-insensitive
             let equal = candidate
                 .iter()
                 .zip(word.iter())
@@ -66,34 +66,6 @@ impl Lexer {
                 return Some(tag.clone());
             }
         }
-
-        // Dynamische Sonderfälle (nicht in KEYWORDS enthalten)
-        const DYNAMIC_NUMBERS: &[&[u8]] = &[b"inf", b"infinity", b"nan"];
-
-        for &word in DYNAMIC_NUMBERS {
-            if remaining.len() < word.len() {
-                continue;
-            }
-
-            if let Some(&b) = remaining.get(word.len()) {
-                if b.is_ascii_alphanumeric() || b == b'_' {
-                    continue;
-                }
-            }
-
-            let candidate = &remaining[..word.len()];
-            let equal = candidate
-                .iter()
-                .zip(word.iter())
-                .all(|(a, b)| a.to_ascii_lowercase() == *b);
-
-            if equal {
-                let literal = std::str::from_utf8(word).unwrap().to_ascii_lowercase();
-                self.consume_n(word.len());
-                return Some(TokenTag::NumberLiteral(literal));
-            }
-        }
-
         None
     }
 }

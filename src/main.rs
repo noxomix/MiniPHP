@@ -18,14 +18,36 @@ fn main() {
         println!("{:?}", &token.tag.as_ref());
     }*/
 
-    for token in &tokens {
-        let tag_name = token.tag.as_ref(); // aus strum
-        let slice = &bytes[token.start_position..=token.end_position];
-        let source = std::str::from_utf8(slice).unwrap_or("<invalid utf8>");
+    /*{
+        let mut free = false;
+        for token in &tokens {
+            let tag_name = token.tag.as_ref(); // aus strum
+            let slice = &bytes[token.start_position..=token.end_position];
+            let source = std::str::from_utf8(slice).unwrap_or("<invalid utf8>");
 
-        println!("{tag_name} =>");
-        println!("\t{:?}", source);
-        println!("");
+            if tag_name.to_ascii_lowercase().contains("comment")  {
+                println!("{tag_name} =>");
+                println!("\t{:?}", source);
+                println!("");
+                free = true;
+            } else if free {
+                println!("{tag_name} =>");
+                println!("\t{:?}", source);
+                println!("");
+                free = false;
+            }
+        }
+    }*/
+
+    {
+        for token in &tokens {
+            let tag_name = token.tag.as_ref(); // aus strum
+            let slice = &bytes[token.start_position..=token.end_position];
+            let source = std::str::from_utf8(slice).unwrap_or("<invalid utf8>");
+            //println!("{tag_name} =>");
+            //println!("\t{:?}", source);
+            //println!("");
+        }
     }
 
 
