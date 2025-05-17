@@ -6,7 +6,7 @@ impl Lexer {
     #[inline(always)]
     pub fn match_single_q_string(&mut self) {
         let start_offset = self.byte_offset;
-        let mut curr = self.consume();
+        let mut curr = self.next();
         loop {
             match curr {
                 Some(b'\'') => {
@@ -19,14 +19,14 @@ impl Lexer {
                 Some(b'\\') => {
                     match self.look() {
                         Some(b'\'') | Some(b'\\') => {
-                            self.consume(); // skip escape
+                            self.next(); // skip escape
                         }
                         _ => {}
                     }
                 }
                 _ => {}
             }
-            curr = self.consume();
+            curr = self.next();
         }
     }
 }

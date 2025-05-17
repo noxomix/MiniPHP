@@ -8,7 +8,7 @@ impl Lexer {
         let start = self.byte_offset;
         match self.look() {
             Some(b':') => {
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::DoubleColon, start);
             }
             _ => self.push_token(TokenTag::Colon, start),

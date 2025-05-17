@@ -23,9 +23,6 @@ impl Lexer {
                 b'}' => self.match_right_brace(),
                 b'(' => self.match_left_paren(),
                 b')' => self.match_right_paren(),
-                /*b'\t' => self.match_tab(),
-                b'\n' => self.match_newline(),
-                b'\r' => self.match_newline_extended(),*/
                 b'[' => self.match_left_bracket(),
                 b']' => self.match_right_bracket(),
                 b'&' => self.match_and_symbol(), //'&|&&' logical and bitwise <AND>
@@ -50,7 +47,7 @@ impl Lexer {
                 }
             }
 
-            current = self.consume();
+            current = self.next();
         }
     }
 }

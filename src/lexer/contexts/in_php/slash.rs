@@ -21,7 +21,7 @@ impl Lexer {
             }
             Some(b'=') => {
                 let start = self.byte_offset;
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::DivAssign, start);
             }
             _ => {

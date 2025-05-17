@@ -8,15 +8,15 @@ impl Lexer {
         let start = self.byte_offset;
         match self.look() {
             Some(b'>') => {
-                self.consume(); // consume '>'
+                self.next(); // consume '>'
                 self.push_token(TokenTag::PhpCloseTag, start);
                 self.context.pop();
                 return true
             }
             Some(b'?') => {
-                self.consume(); // consume 2nd '?'
+                self.next(); // consume 2nd '?'
                 if self.look() == Some(b'=') {
-                    self.consume();
+                    self.next();
                     self.push_token(TokenTag::NullCoalesceAssign, start);
                 } else {
                     self.push_token(TokenTag::NullCoalesce, start);

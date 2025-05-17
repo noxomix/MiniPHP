@@ -5,14 +5,14 @@ use crate::lexer::token::TokenTag;
 impl Lexer {
     pub fn context_in_dq_string(&mut self) {
         let start_offset = self.byte_offset;
-        self.consume();
+        self.next();
 
         let mut current = self.current();
         loop {
             match current {
                 Some(b'\\') => {
                     //escape
-                    self.consume(); //also insgesamt werden 2 zeichen konsumiert, also wird \" und \' gecovert
+                    self.next(); //also insgesamt werden 2 zeichen konsumiert, also wird \" und \' gecovert
                 }
                 Some(b'"') => {
                     //end
@@ -22,9 +22,20 @@ impl Lexer {
                     }, start_offset.clone());
 
                     self.context.pop();
-                    self.consume(); //hinteres '"' zeichen wird nicht mehr gebraucht
+                    self.next(); //hinteres '"' zeichen wird nicht mehr gebraucht
                     return
                 },
+                /*Some(b'$') => {
+                    //interpolation beginnt:
+                    match self.look() {
+                        Some(b'{') => {
+                            //bracket beginn so further instruction is parsed
+                        },
+                        _ => {
+                            //normal variable
+                        }
+                    }
+                },*/
                 None => {
                     //unfinished string
                     self.context.pop();
@@ -32,7 +43,7 @@ impl Lexer {
                 },
                 _ => {}
             }
-            current = self.consume();
+            current = self.next();
             //println!("lol {:?} - {:?}", current.unwrap() as char, &self.position);
         }
     }

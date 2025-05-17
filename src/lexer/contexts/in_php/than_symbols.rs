@@ -8,11 +8,11 @@ impl Lexer {
         let start = self.byte_offset;
         match self.look() {
             Some(b'=') => {
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::IsSmallerOrEqual, start);
             }
             Some(b'<') => {
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::ShiftLeft, start);
             }
             _ => {
@@ -26,11 +26,11 @@ impl Lexer {
         let start = self.byte_offset;
         match self.look() {
             Some(b'=') => {
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::IsGreaterOrEqual, start);
             }
             Some(b'>') => {
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::ShiftRight, start);
             }
             _ => {

@@ -8,7 +8,7 @@ impl Lexer {
         let start = self.byte_offset;
 
         while matches!(self.look(), Some(b' ') | Some(b'\t') | Some(b'\r') | Some(b'\n')) {
-            self.consume();
+            self.next();
         }
 
         if self.byte_offset >= start {

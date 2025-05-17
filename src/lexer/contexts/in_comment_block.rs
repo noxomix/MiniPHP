@@ -6,13 +6,13 @@ impl Lexer {
     pub fn context_in_comment_block(&mut self) {
         let mut is_doc = false;
         let start_offset = self.byte_offset;
-        self.consume_n(2); //'/*'
+        self.next_n(2); //'/*'
         //println!("Handle {:?}", self.byte_offset);
 
         //is it doc comment?
         if let Some(b'*') = self.current() {
             is_doc = true;
-            self.consume();
+            self.next();
         }
 
         let mut current = self.current();
@@ -20,14 +20,14 @@ impl Lexer {
             match current {
                 Some(b'*') => {
                     if let Some(b'/') = self.look() {
-                        self.consume();
+                        self.next();
                         //multiline comment has ended
                         if is_doc {
                             self.push_token(TokenTag::DocComment{}, start_offset);
-                            self.consume();
+                            self.next();
                         } else {
                             self.push_token(TokenTag::Comment{multiline: true}, start_offset);
-                            self.consume();
+                            self.next();
                         }
                         self.context.pop();
                         return
@@ -35,7 +35,7 @@ impl Lexer {
                 },
                 _ => {}
             }
-            current = self.consume();
+            current = self.next();
         }
     }
 }

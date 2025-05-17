@@ -5,8 +5,8 @@ use crate::lexer::lexer::Lexer;
 
 pub trait BytesOperation {
     fn current(&mut self) -> Option<u8>;
-    fn consume(&mut self) -> Option<u8>; //ein byte konsumieren
-    fn consume_n(&mut self, n: usize) -> Option<u8>; //mehrere bytes konsumieren
+    fn next(&mut self) -> Option<u8>; //ein byte konsumieren
+    fn next_n(&mut self, n: usize) -> Option<u8>; //mehrere bytes konsumieren
     fn look(&mut self) -> Option<u8>; //nächstes zeichen schonmal anschauen
     fn look_n(&mut self, n: usize) -> Option<u8>; //nächste n zeichen ins Vorausschauen
 
@@ -23,15 +23,15 @@ impl BytesOperation for Lexer {
     }
 
     #[inline(always)]
-    fn consume(&mut self) -> Option<u8> {
+    fn next(&mut self) -> Option<u8> {
         self.byte_offset += 1;
         self.current()
     }
 
     #[inline(always)]
-    fn consume_n(&mut self, n: usize) -> Option<u8> {
+    fn next_n(&mut self, n: usize) -> Option<u8> {
         for _ in 1..=n {
-            self.consume()?;
+            self.next()?;
         }
         self.current()
     }

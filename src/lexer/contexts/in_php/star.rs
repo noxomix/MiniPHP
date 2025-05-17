@@ -8,13 +8,13 @@ impl Lexer {
         let start = self.byte_offset;
         match self.look() {
             Some(b'=') => {
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::MulAssign, start);
             }
             Some(b'*') => {
-                self.consume();
+                self.next();
                 if self.look() == Some(b'=') {
-                    self.consume();
+                    self.next();
                     self.push_token(TokenTag::PowerAssign, start);
                 } else {
                     self.push_token(TokenTag::Power, start);

@@ -8,16 +8,16 @@ impl Lexer {
 
         // Konsumiere die Kommentar-Einleitung
         if self.current() == Some(b'#') {
-            self.consume(); // '#'
+            self.next(); // '#'
         } else {
-            self.consume_n(2); // "//"
+            self.next_n(2); // "//"
         }
 
         while let Some(b) = self.look() {
             match b {
                 b'\n' | b'\r' => break, // ← Nur gucken, nicht konsumieren
                 _ => {
-                    self.consume(); // ← alles andere konsumieren
+                    self.next(); // ← alles andere konsumieren
                 }
             }
         }
@@ -27,6 +27,6 @@ impl Lexer {
         }, start_offset);
 
         self.context.pop();
-        self.consume(); //letztes zeichen trotzdem noch konsumieren damit der context_in_php matcher jetzt bei \n weiter macht.
+        self.next(); //letztes zeichen trotzdem noch konsumieren damit der context_in_php matcher jetzt bei \n weiter macht.
     }
 }

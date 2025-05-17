@@ -33,7 +33,7 @@ impl Lexer {
 
         if let Some(end) = last_valid {
             let ident = unsafe { self.strquick(start, end) }.to_string();
-            self.consume_n(end - self.byte_offset); // nur bis **vor** dem letzten Zeichen
+            self.next_n(end - self.byte_offset); // nur bis **vor** dem letzten Zeichen
             self.push_token(TokenTag::Identifier(ident), start);
             // self.current() zeigt jetzt korrekt auf das letzte gültige Zeichen
         }
@@ -62,7 +62,7 @@ impl Lexer {
                 .all(|(a, b)| a.to_ascii_lowercase() == *b);
 
             if equal {
-                self.consume_n(word.len());
+                self.next_n(word.len());
                 return Some(tag.clone());
             }
         }

@@ -7,7 +7,7 @@ impl Lexer {
     pub fn match_strich(&mut self) {
         let start = self.byte_offset;
         if self.look() == Some(b'|') {
-            self.consume();
+            self.next();
             self.push_token(TokenTag::LogicalOr, start);
         } else {
             self.push_token(TokenTag::BitOr, start);

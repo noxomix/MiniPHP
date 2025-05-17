@@ -9,10 +9,10 @@ impl Lexer {
 
         // Sonderformate: 0x, 0b, 0o
         if self.look() == Some(b'x') || self.look() == Some(b'X') {
-            self.consume(); // x
+            self.next(); // x
             while let Some(b) = self.look() {
                 if b.is_ascii_hexdigit() || b == b'_' {
-                    self.consume();
+                    self.next();
                 } else {
                     break;
                 }
@@ -23,10 +23,10 @@ impl Lexer {
         }
 
         if self.look() == Some(b'b') || self.look() == Some(b'B') {
-            self.consume(); // b
+            self.next(); // b
             while let Some(b) = self.look() {
                 if b == b'0' || b == b'1' || b == b'_' {
-                    self.consume();
+                    self.next();
                 } else {
                     break;
                 }
@@ -37,10 +37,10 @@ impl Lexer {
         }
 
         if self.look() == Some(b'o') || self.look() == Some(b'O') {
-            self.consume(); // o
+            self.next(); // o
             while let Some(b) = self.look() {
                 if b >= b'0' && b <= b'7' || b == b'_' {
-                    self.consume();
+                    self.next();
                 } else {
                     break;
                 }
@@ -54,7 +54,7 @@ impl Lexer {
         if self.bytes.get(start) == Some(&b'0') {
             while let Some(b) = self.look() {
                 if b >= b'0' && b <= b'7' || b == b'_' {
-                    self.consume();
+                    self.next();
                 } else {
                     break;
                 }
@@ -70,16 +70,16 @@ impl Lexer {
 
         while let Some(b) = self.look() {
             match b {
-                b'0'..=b'9' | b'_' => {self.consume();},
+                b'0'..=b'9' | b'_' => {self.next();},
                 b'.' if !seen_dot => {
                     seen_dot = true;
-                    self.consume();
+                    self.next();
                 }
                 b'e' | b'E' if !seen_exponent => {
                     seen_exponent = true;
-                    self.consume();
+                    self.next();
                     if let Some(b'+' | b'-') = self.look() {
-                        self.consume();
+                        self.next();
                     }
                 }
                 _ => break,

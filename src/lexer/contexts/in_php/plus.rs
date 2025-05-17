@@ -8,11 +8,11 @@ impl Lexer {
         let start = self.byte_offset;
         match self.look() {
             Some(b'+') => {
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::Increment, start);
             }
             Some(b'=') => {
-                self.consume();
+                self.next();
                 self.push_token(TokenTag::AddAssign, start);
             }
             _ => {
