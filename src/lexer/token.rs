@@ -68,7 +68,7 @@ pub enum TokenTag {
     ConcatAssign,  // .=
     TernaryQuestion, // ?
     TernaryColon,    // :
-    NumberLiteral(String), //mathematik
+    NumberLiteral, //mathematik
     BooleanLiteral(bool),
     NullLiteral,
     Identifier(String),
@@ -76,13 +76,10 @@ pub enum TokenTag {
     Tab, //\t
     //Newline, //\n usw
     NamespaceBackslash, //'\\'
-    NumberNan, //NaN
-    NumberInfinity, //INF
     Statement(StatementType),
     PhpCloseTag,
     PhpOpenTag {},
-    AccessModifier(AccessModifierType),
-    StringInterpolation(String)
+    AccessModifier(AccessModifierType)
 }
 #[derive(Debug, Clone, PartialEq, Eq, AsRefStr)]
 pub enum StatementType {

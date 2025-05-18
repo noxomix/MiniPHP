@@ -49,6 +49,7 @@ fn main() {
             if tag_name.contains("Number") {
                 println!("{tag_name} =>");
                 println!("\t{:?}", source);
+                //println!("{:?}", &token.tag);
                 println!("");
                 c += 1;
             }

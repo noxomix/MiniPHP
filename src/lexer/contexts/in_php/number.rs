@@ -6,7 +6,7 @@ impl Lexer {
     #[inline(always)]
     pub fn match_number(&mut self) {
         let start = self.byte_offset;
-        
+
         //todo for the future: match nan and inf here aswell, currently we match via keyword parser.
 
         // Hex Float z.B. 0x1.fp3
@@ -34,8 +34,8 @@ impl Lexer {
                 }
             }
 
-            let value = unsafe { self.strquick(start, self.byte_offset + 1) };
-            self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+            //let value = unsafe { self.strquick(start, self.byte_offset + 1) };
+            self.push_token(TokenTag::NumberLiteral, start);
             return;
         }
 
@@ -48,8 +48,8 @@ impl Lexer {
                     break;
                 }
             }
-            let value = unsafe { self.strquick(start, self.byte_offset + 1) };
-            self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+            //let value = unsafe { self.strquick(start, self.byte_offset + 1) };
+            self.push_token(TokenTag::NumberLiteral, start);
             return;
         }
 
@@ -62,8 +62,8 @@ impl Lexer {
                     break;
                 }
             }
-            let value = unsafe { self.strquick(start, self.byte_offset + 1) };
-            self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+            //let value = unsafe { self.strquick(start, self.byte_offset + 1) };
+            self.push_token(TokenTag::NumberLiteral, start);
             return;
         }
 
@@ -77,8 +77,8 @@ impl Lexer {
                     break;
                 }
             }
-            let value = unsafe { self.strquick(start, self.byte_offset + 1) };
-            self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+            //let value = unsafe { self.strquick(start, self.byte_offset + 1) };
+            self.push_token(TokenTag::NumberLiteral, start);
             return;
         }
 
@@ -106,8 +106,8 @@ impl Lexer {
             }
         }
 
-        let value = unsafe { self.strquick(start, self.byte_offset + 1) };
-        self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
+        //let value = unsafe { self.strquick(start, self.byte_offset + 1) };
+        self.push_token(TokenTag::NumberLiteral, start);
     }
 
     #[inline(always)]

@@ -1,6 +1,6 @@
 <?php
 
-$code = file_get_contents("short.php"); // 100.000 Zeichen
+$code = file_get_contents("test.php"); // 100.000 Zeichen
 
 $START = hrtime(true);
 $tokens = token_get_all($code);

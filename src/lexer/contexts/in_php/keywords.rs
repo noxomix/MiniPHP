@@ -130,6 +130,6 @@ pub const KEYWORDS: &[(&[u8], TokenTag)] = &[
     (b"readonly", TokenTag::AccessModifier(AccessModifierType::Readonly)),
     
     //Special Numbers
-    (b"inf", TokenTag::NumberInfinity),
-    (b"nan", TokenTag::NumberNan),
+    (b"inf", TokenTag::NumberLiteral),
+    (b"nan", TokenTag::NumberLiteral),
 ];

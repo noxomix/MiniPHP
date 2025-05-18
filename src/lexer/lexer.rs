@@ -13,6 +13,7 @@ pub enum LexerContext {
     InCommentBlock,   // /* ... */
     InEncapsulated,   // Innerhalb eines doppelt-quoted Strings mit Variablen-Ersatz
     InInterpolation,  // Innerhalb einer ${...} oder "{$var}"-Interpolation
+    InDirectInterpolation,
 }
 
 pub struct Lexer {
@@ -63,6 +64,7 @@ impl Tokenizer for Lexer {
             Some(LexerContext::InCommentLine) => self.context_in_comment_line(),
             Some(LexerContext::InCommentBlock) => self.context_in_comment_block(),
             Some(LexerContext::InString) => self.context_in_dq_string(),
+            Some(LexerContext::InDirectInterpolation) => self.context_in_direct_interpolation(),
             _ => {
                 self.context_in_html()
             }
