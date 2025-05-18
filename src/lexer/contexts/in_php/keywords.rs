@@ -62,7 +62,7 @@ impl Lexer {
                 .all(|(a, b)| a.to_ascii_lowercase() == *b);
 
             if equal {
-                self.next_n(word.len());
+                self.next_n(word.len()-1); //nicht das letzte zeichen schon konsumieren :)
                 return Some(tag.clone());
             }
         }
@@ -81,6 +81,7 @@ pub const KEYWORDS: &[(&[u8], TokenTag)] = &[
     (b"break", TokenTag::Statement(StatementType::Break)),
     (b"case", TokenTag::Statement(StatementType::Case)),
     (b"class", TokenTag::Statement(StatementType::Class)),
+    (b"new", TokenTag::Statement(StatementType::New)),
     (b"continue", TokenTag::Statement(StatementType::Continue)),
     (b"do", TokenTag::Statement(StatementType::Do)),
     (b"else", TokenTag::Statement(StatementType::Else)),
@@ -127,4 +128,8 @@ pub const KEYWORDS: &[(&[u8], TokenTag)] = &[
     (b"final", TokenTag::AccessModifier(AccessModifierType::Final)),
     (b"abstract", TokenTag::AccessModifier(AccessModifierType::Abstract)),
     (b"readonly", TokenTag::AccessModifier(AccessModifierType::Readonly)),
+    
+    //Special Numbers
+    (b"inf", TokenTag::NumberInfinity),
+    (b"nan", TokenTag::NumberNan),
 ];

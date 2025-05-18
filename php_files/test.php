@@ -599,6 +599,55 @@ function fetchMediaInfo(Array $params) {
 		$media = $result['media'];
 	}
 
+    function php_number_literals(): array {
+        return [
+            // Integer
+            0,
+            1,
+            123,
+            1_000_000,       // mit Unterstrich
+
+            // Oktal (klassisch)
+            0123,            // = 83 dezimal
+
+            // Oktal (0o/0O)
+            0o123,           // = 83 dezimal
+            0O777,           // = 511 dezimal
+
+            // Binär
+            0b1010,
+            0B1111_0000,     // mit Unterstrich
+
+            // Hexadezimal
+            0x1A,
+            0Xdead_beef,     // mit Unterstrich
+
+            // Float
+            1.0,
+            0.5,
+            .25,
+            1.,
+
+            // Float mit Unterstrichen
+            1_000.000_001,
+
+            // Exponentialnotation
+            1e3,             // = 1000
+            1.5e+4,
+            2E-2,
+
+            // Float + Hex (ab PHP 7.4 → Syntax gültig, aber keine float-literal wie in C)
+            // PHP unterstützt KEINE 0x1.fp3 wie in C! Nur Integer-Hex.
+
+            // Sonderwerte
+            INF,
+            -INF,
+            NAN,
+            -NAN,
+        ];
+    }
+
+
 	if ($shuffle) {
 		if ($type && !$request && !$artist) {
 			write_log("Okay, we need to fetch some random media!");

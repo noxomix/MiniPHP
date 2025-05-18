@@ -6,24 +6,41 @@ impl Lexer {
     #[inline(always)]
     pub fn match_number(&mut self) {
         let start = self.byte_offset;
+        
+        //todo for the future: match nan and inf here aswell, currently we match via keyword parser.
 
-        // Sonderformate: 0x, 0b, 0o
-        if self.peek() == Some(b'x') || self.peek() == Some(b'X') {
-            self.next(); // x
+        // Hex Float z.B. 0x1.fp3
+        if self.match_str(b"0x") || self.match_str(b"0X") {
+            let mut seen_dot = false;
+            let mut seen_exponent = false;
+
             while let Some(b) = self.peek() {
-                if b.is_ascii_hexdigit() || b == b'_' {
-                    self.next();
-                } else {
-                    break;
+                match b {
+                    b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F' | b'_' => {
+                        self.next();
+                    }
+                    b'.' if !seen_dot => {
+                        seen_dot = true;
+                        self.next();
+                    }
+                    b'p' | b'P' if !seen_exponent => {
+                        seen_exponent = true;
+                        self.next();
+                        if let Some(b'+' | b'-') = self.peek() {
+                            self.next();
+                        }
+                    }
+                    _ => break,
                 }
             }
-            let value = unsafe { self.strquick(start, self.byte_offset) };
+
+            let value = unsafe { self.strquick(start, self.byte_offset + 1) };
             self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
             return;
         }
 
-        if self.peek() == Some(b'b') || self.peek() == Some(b'B') {
-            self.next(); // b
+        // Binär z.B. 0b1010_0001
+        if self.match_str(b"0b") || self.match_str(b"0B") {
             while let Some(b) = self.peek() {
                 if b == b'0' || b == b'1' || b == b'_' {
                     self.next();
@@ -31,52 +48,55 @@ impl Lexer {
                     break;
                 }
             }
-            let value = unsafe { self.strquick(start, self.byte_offset) };
+            let value = unsafe { self.strquick(start, self.byte_offset + 1) };
             self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
             return;
         }
 
-        if self.peek() == Some(b'o') || self.peek() == Some(b'O') {
-            self.next(); // o
+        // Oktal mit 0o oder 0O
+        if self.match_str(b"0o") || self.match_str(b"0O") {
             while let Some(b) = self.peek() {
-                if b >= b'0' && b <= b'7' || b == b'_' {
+                if (b'0'..=b'7').contains(&b) || b == b'_' {
                     self.next();
                 } else {
                     break;
                 }
             }
-            let value = unsafe { self.strquick(start, self.byte_offset) };
+            let value = unsafe { self.strquick(start, self.byte_offset + 1) };
             self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
             return;
         }
 
-        // klassische Oktal: beginnt mit 0, gefolgt von 0–7
-        if self.bytes.get(start) == Some(&b'0') {
+        // Klassische Oktalzahl (beginnend mit 0)
+        if self.peek() == Some(b'0') {
+            self.next(); // erste 0 konsumieren
             while let Some(b) = self.peek() {
-                if b >= b'0' && b <= b'7' || b == b'_' {
+                if (b'0'..=b'7').contains(&b) || b == b'_' {
                     self.next();
                 } else {
                     break;
                 }
             }
-            let value = unsafe { self.strquick(start, self.byte_offset) };
+            let value = unsafe { self.strquick(start, self.byte_offset + 1) };
             self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
             return;
         }
 
-        // Dezimal/Gleitkommazahl mit optionalen Unterstrichen
+        // Float/Dezimal
         let mut seen_dot = false;
-        let mut seen_exponent = false;
+        let mut seen_exp = false;
 
         while let Some(b) = self.peek() {
             match b {
-                b'0'..=b'9' | b'_' => {self.next();},
+                b'0'..=b'9' | b'_' => {
+                    self.next();
+                }
                 b'.' if !seen_dot => {
                     seen_dot = true;
                     self.next();
                 }
-                b'e' | b'E' if !seen_exponent => {
-                    seen_exponent = true;
+                b'e' | b'E' if !seen_exp => {
+                    seen_exp = true;
                     self.next();
                     if let Some(b'+' | b'-') = self.peek() {
                         self.next();
@@ -86,7 +106,38 @@ impl Lexer {
             }
         }
 
-        let value = unsafe { self.strquick(start, self.byte_offset) };
+        let value = unsafe { self.strquick(start, self.byte_offset + 1) };
         self.push_token(TokenTag::NumberLiteral(value.to_string()), start);
-    } //muss noch mal angeschaut werden, zudem ist keine Binär oder Hex notation geparsed bisher..&self.bytes[start..self.byte_offset]).unwrap().to_string()), start)
+    }
+
+    #[inline(always)]
+    fn match_str(&mut self, s: &[u8]) -> bool {
+        let end = self.byte_offset + s.len();
+        if self.bytes.len() >= end && &self.bytes[self.byte_offset..end] == s {
+            for _ in 0..s.len() {
+                self.next();
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    #[inline(always)]
+    fn match_str_ignore_case(&mut self, s: &[u8]) -> bool {
+        let end = self.byte_offset + s.len();
+        if self.bytes.len() >= end
+            && self.bytes[self.byte_offset..end]
+            .iter()
+            .zip(s.iter())
+            .all(|(a, b)| a.to_ascii_lowercase() == b.to_ascii_lowercase())
+        {
+            for _ in 0..s.len() {
+                self.next();
+            }
+            true
+        } else {
+            false
+        }
+    }
 }

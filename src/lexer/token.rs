@@ -144,6 +144,7 @@ pub enum StatementType {
     Require,
     RequireOnce,
     As,
+    New,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, AsRefStr)]
