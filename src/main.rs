@@ -9,7 +9,7 @@ mod lexer;
 mod common;
 
 fn main() {
-    let file_path = "./php_files/multilang.php";
+    let file_path = "./php_files/test.php";
     let bytes = read(file_path);
     let lexing_start = Instant::now();
     let tokens = lex(bytes.clone());
@@ -42,13 +42,19 @@ fn main() {
     {
         for token in &tokens {
             let tag_name = token.tag.as_ref(); // aus strum
-            let slice = &bytes[token.start_position..=token.end_position];
+            let slice = &bytes[token.start_position..token.end_position];
             let source = std::str::from_utf8(slice).unwrap_or("<invalid utf8>");
             println!("{tag_name} =>");
             println!("\t{:?}", source);
             println!("");
         }
     }
+
+    /*{
+        for token in &tokens {
+            println!("{:?}", token.tag);
+        }
+    }*/
 
 
     println!("Number of Tokens found: {:?}", tokens.len());

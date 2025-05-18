@@ -7,8 +7,7 @@ use crate::lexer::lexer::{Lexer, LexerContext};
 
 impl Lexer {
     pub fn context_in_php(&mut self) {
-        let mut current = self.current();
-        while let Some(c) = current {
+        while let Some(c) = self.current() {
             match c {
                 b'$' => self.match_variable(), //'$..'
                 b'"' => {self.context.push(LexerContext::InString);return;}, //'"' double-quoted string
@@ -43,11 +42,11 @@ impl Lexer {
                 b'a'..=b'z' | b'A'..=b'Z' | b'_' => self.match_keywords(),
                 _ => {
                     //debug: nicht gematchte zeichen:
-                    println!("Not matched: {:?} - {:?}", current.unwrap() as char, self.byte_offset);
+                    println!("Not matched: {:?} - {:?}", c as char, self.byte_offset);
                 }
             }
 
-            current = self.next();
+            self.next();
         }
     }
 }

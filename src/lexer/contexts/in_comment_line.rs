@@ -13,7 +13,7 @@ impl Lexer {
             self.next_n(2); // "//"
         }
 
-        while let Some(b) = self.look() {
+        while let Some(b) = self.peek() {
             match b {
                 b'\n' | b'\r' => break, // ← Nur gucken, nicht konsumieren
                 _ => {

@@ -7,8 +7,10 @@ pub trait BytesOperation {
     fn current(&mut self) -> Option<u8>;
     fn next(&mut self) -> Option<u8>; //ein byte konsumieren
     fn next_n(&mut self, n: usize) -> Option<u8>; //mehrere bytes konsumieren
-    fn look(&mut self) -> Option<u8>; //nächstes zeichen schonmal anschauen
-    fn look_n(&mut self, n: usize) -> Option<u8>; //nächste n zeichen ins Vorausschauen
+    fn peek(&mut self) -> Option<u8>; //nächstes zeichen schonmal anschauen
+    fn peek_n(&mut self, n: usize) -> Option<u8>; //nächste n zeichen ins Vorausschauen
+
+    fn exclusive_pos(&self) -> usize;
 
     unsafe fn strquick(&self, start: usize, end: usize) -> String;
     fn strrng(&self, start: usize, end: usize) -> String;
@@ -19,31 +21,36 @@ pub trait BytesOperation {
 impl BytesOperation for Lexer {
     #[inline(always)]
     fn current(&mut self) -> Option<u8> {
-        self.look_n(0)
+        self.peek_n(0)
     }
 
     #[inline(always)]
     fn next(&mut self) -> Option<u8> {
-        self.byte_offset += 1;
-        self.current()
+        self.next_n(1)
     }
 
     #[inline(always)]
     fn next_n(&mut self, n: usize) -> Option<u8> {
-        for _ in 1..=n {
-            self.next()?;
-        }
+        self.byte_offset += n;
         self.current()
     }
 
     #[inline(always)]
-    fn look(&mut self) -> Option<u8> {
-        self.look_n(1)
+    fn peek(&mut self) -> Option<u8> {
+        self.peek_n(1)
     }
 
     #[inline(always)]
-    fn look_n(&mut self, n: usize) -> Option<u8> {
-        self.bytes.get(self.byte_offset+n).cloned()
+    fn peek_n(&mut self, n: usize) -> Option<u8> {
+        let s = self.bytes.get(self.byte_offset+n);
+        if s == None {
+            return None;
+        }
+        s.cloned()
+    }
+
+    fn exclusive_pos(&self) -> usize {
+        self.byte_offset+1
     }
 
     #[inline(always)]
@@ -52,7 +59,7 @@ impl BytesOperation for Lexer {
             return "".to_string()
         }
         unsafe {
-            std::str::from_utf8_unchecked(&self.bytes[start..=end]).to_string()
+            std::str::from_utf8_unchecked(&self.bytes[start..end]).to_string() //nicht mehr inklusive (achtung)
         }
     }
     

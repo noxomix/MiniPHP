@@ -12,23 +12,32 @@ impl Lexer {
                 let php_start = self.byte_offset;
 
                 if remaining.starts_with(b"<?php") {
-                    self.push_token(TokenTag::HtmlLiteral {}, start_position);
+                    if start_position < php_start {
+                        self.push_token(TokenTag::HtmlLiteral {}, start_position);
+                    }
+                    self.next_n(4); // "<?php"
                     self.push_token(TokenTag::PhpOpenTag {}, php_start);
-                    self.next_n(5); // "<?php"
                     self.context.push(LexerContext::InPhp);
+                    self.next();
                     return;
                 } else if remaining.starts_with(b"<?=") { //short form for '<?php echo'
-                    self.push_token(TokenTag::HtmlLiteral {}, start_position);
+                    if start_position < php_start {
+                        self.push_token(TokenTag::HtmlLiteral {}, start_position);
+                    }
+                    self.next_n(2); // "<?="
                     self.push_token(TokenTag::PhpOpenTag {}, php_start);
                     self.push_token(TokenTag::Identifier("echo".to_string()), php_start+2); //special case wir nutzen hier als position die selbe wie das '<?=' (gleichzeichen davon)
-                    self.next_n(3); // "<?="
                     self.context.push(LexerContext::InPhp);
+                    self.next();
                     return;
                 } else if remaining.starts_with(b"<?") {
-                    self.push_token(TokenTag::HtmlLiteral {}, start_position);
+                    if start_position < php_start {
+                        self.push_token(TokenTag::HtmlLiteral {}, start_position);
+                    }
+                    self.next_n(1); // "<?"
                     self.push_token(TokenTag::PhpOpenTag {}, php_start);
-                    self.next_n(2); // "<?"
                     self.context.push(LexerContext::InPhp);
+                    self.next();
                     return;
                 }
             }

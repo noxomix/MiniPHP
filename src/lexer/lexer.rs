@@ -40,13 +40,14 @@ pub trait Tokenizer {
     fn tokenize(&mut self) -> Vec<Token>;
     fn handle_context(&mut self);
     fn push_token(&mut self, tag: TokenTag, start_position: usize);
+    fn push_token_withend(&mut self, tag: TokenTag, start_position: usize, end_position: usize);
 }
 impl Tokenizer for Lexer {
     fn tokenize(&mut self) -> Vec<Token> {
         /* Main loop for tokenization */
         loop {
             self.handle_context();
-            if self.look() == None {
+            if self.peek() == None {
               break;
             }
             //todo: if self.errors ... break and debug
@@ -70,7 +71,13 @@ impl Tokenizer for Lexer {
 
     fn push_token(&mut self, tag: TokenTag, start_position: usize) {
         self.tokens.push(
-            Token::new(tag, start_position, self.byte_offset) //todo: (+) methode die eine individuelle endposition zulässt.
+            Token::new(tag, start_position, self.exclusive_pos()) //todo: (+) methode die eine individuelle endposition zulässt.
+        )
+    }
+    
+    fn push_token_withend(&mut self, tag: TokenTag, start_position: usize, end_position: usize) {
+        self.tokens.push(
+            Token::new(tag, start_position, end_position) //todo: (+) methode die eine individuelle endposition zulässt.
         )
     }
 }

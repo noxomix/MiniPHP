@@ -9,7 +9,7 @@ impl Lexer {
         let mut first = true;
         let mut valid = false;
 
-        while let Some(b) = self.look() {
+        while let Some(b) = self.peek() {
             if b < 0x80 {
                 if Self::is_variable_break_byte(b) {
                     break;
@@ -43,10 +43,8 @@ impl Lexer {
             }
         }
 
-        let end = self.byte_offset;
-
         if valid {
-            let value = unsafe { self.strquick(start, end) };
+            let value = unsafe { self.strquick(start, self.exclusive_pos()) };
             self.push_token(TokenTag::Variable(value), start);
         } else {
             println!("Big error at {}", self.byte_offset);

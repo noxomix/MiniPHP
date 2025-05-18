@@ -19,7 +19,7 @@ impl Lexer {
         loop {
             match current {
                 Some(b'*') => {
-                    if let Some(b'/') = self.look() {
+                    if let Some(b'/') = self.peek() {
                         self.next();
                         //multiline comment has ended
                         if is_doc {
