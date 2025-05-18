@@ -7,7 +7,7 @@ impl Lexer {
     pub fn match_whitespace(&mut self) {
         let start = self.byte_offset;
 
-        while matches!(self.look(), Some(b' ') | Some(b'\t') | Some(b'\r') | Some(b'\n')) {
+        while matches!(self.peek(), Some(b' ') | Some(b'\t') | Some(b'\r') | Some(b'\n')) {
             self.next();
         }
 

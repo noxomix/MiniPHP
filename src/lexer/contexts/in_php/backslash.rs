@@ -6,7 +6,7 @@ impl Lexer {
     #[inline(always)]
     pub fn match_backslash(&mut self) {
         let start = self.byte_offset;
-        if self.look() == Some(b'\\') {
+        if self.peek() == Some(b'\\') {
             self.next();
             self.push_token(TokenTag::NamespaceBackslash, start);
         }

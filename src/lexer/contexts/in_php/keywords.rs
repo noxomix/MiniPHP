@@ -15,7 +15,7 @@ impl Lexer {
         let mut lookahead = 0;
         let mut last_valid = None;
 
-        while let Some(b) = self.look_n(lookahead) {
+        while let Some(b) = self.peek_n(lookahead) {
             if b.is_ascii_alphanumeric() || b == b'_' {
                 last_valid = Some(self.byte_offset + lookahead);
                 lookahead += 1;

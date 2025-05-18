@@ -6,7 +6,7 @@ impl Lexer {
     #[inline(always)]
     pub fn match_question_symbol(&mut self) -> bool {
         let start = self.byte_offset;
-        match self.look() {
+        match self.peek() {
             Some(b'>') => {
                 self.next(); // consume '>'
                 self.push_token(TokenTag::PhpCloseTag, start);
@@ -15,7 +15,7 @@ impl Lexer {
             }
             Some(b'?') => {
                 self.next(); // consume 2nd '?'
-                if self.look() == Some(b'=') {
+                if self.peek() == Some(b'=') {
                     self.next();
                     self.push_token(TokenTag::NullCoalesceAssign, start);
                 } else {

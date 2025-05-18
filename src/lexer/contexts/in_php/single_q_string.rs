@@ -17,7 +17,7 @@ impl Lexer {
                     break;
                 }
                 Some(b'\\') => {
-                    match self.look() {
+                    match self.peek() {
                         Some(b'\'') | Some(b'\\') => {
                             self.next(); // skip escape
                         }

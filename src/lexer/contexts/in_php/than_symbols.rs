@@ -6,7 +6,7 @@ impl Lexer {
     #[inline(always)]
     pub fn match_less_than_symbol(&mut self) {
         let start = self.byte_offset;
-        match self.look() {
+        match self.peek() {
             Some(b'=') => {
                 self.next();
                 self.push_token(TokenTag::IsSmallerOrEqual, start);
@@ -24,7 +24,7 @@ impl Lexer {
     #[inline(always)]
     pub fn match_greater_than_symbol(&mut self) {
         let start = self.byte_offset;
-        match self.look() {
+        match self.peek() {
             Some(b'=') => {
                 self.next();
                 self.push_token(TokenTag::IsGreaterOrEqual, start);

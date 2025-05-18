@@ -26,7 +26,7 @@ impl Lexer {
                 }
             } else {
                 // Multibyte → Unicode-Zeichen analysieren
-                let slice = &self.bytes[self.byte_offset+1..]; //hier +1 weil wir ja mit look() in der zukunft sind. (@bug richtig lange gdauert zu fixen :))
+                let slice = &self.bytes[self.byte_offset+1..]; //hier +1 weil wir ja mit peek() in der zukunft sind. (@bug richtig lange gdauert zu fixen :))
                 let (cp, len) = match Self::decode_utf8_char(slice) {
                     Some(v) => v,
                     None => break,

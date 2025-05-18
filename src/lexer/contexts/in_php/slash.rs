@@ -8,7 +8,7 @@ impl Lexer {
      */
     #[inline(always)]
     pub fn match_slash(&mut self) -> bool {
-        match self.look() {
+        match self.peek() {
             Some(b'/') => {
                 self.context.push(LexerContext::InCommentLine);
                 return true;

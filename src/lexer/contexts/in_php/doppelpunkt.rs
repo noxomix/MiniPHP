@@ -6,7 +6,7 @@ impl Lexer {
     #[inline(always)]
     pub fn match_double_dot_symbol(&mut self) {
         let start = self.byte_offset;
-        match self.look() {
+        match self.peek() {
             Some(b':') => {
                 self.next();
                 self.push_token(TokenTag::DoubleColon, start);

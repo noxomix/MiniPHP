@@ -6,14 +6,14 @@ impl Lexer {
     #[inline(always)]
     pub fn match_star_symbol(&mut self) {
         let start = self.byte_offset;
-        match self.look() {
+        match self.peek() {
             Some(b'=') => {
                 self.next();
                 self.push_token(TokenTag::MulAssign, start);
             }
             Some(b'*') => {
                 self.next();
-                if self.look() == Some(b'=') {
+                if self.peek() == Some(b'=') {
                     self.next();
                     self.push_token(TokenTag::PowerAssign, start);
                 } else {

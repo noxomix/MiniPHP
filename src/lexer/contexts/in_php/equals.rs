@@ -6,14 +6,14 @@ impl Lexer {
     #[inline(always)]
     pub fn match_equals(&mut self) {
         let start = self.byte_offset;
-        match self.look() {
+        match self.peek() {
             Some(b'>') => {
                 self.next();
                 self.push_token(TokenTag::FatArrow, start);
             }
             Some(b'=') => {
                 self.next();
-                if self.look() == Some(b'=') {
+                if self.peek() == Some(b'=') {
                     self.next();
                     self.push_token(TokenTag::IsIdentical, start);
                 } else {
