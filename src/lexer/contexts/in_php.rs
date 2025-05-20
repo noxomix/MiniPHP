@@ -2,14 +2,16 @@ mod variable;mod number;mod semicolon;mod single_q_string;mod slash;mod whitespa
 mod braces;mod parens;mod backslash;mod brackets;mod and;mod strich;mod exclamation;mod than_symbols;mod dot;
 mod doppelpunkt;mod questionmark;mod comma;mod minus;mod plus;mod star;mod percent;mod pivot;mod keywords;
 
+use std::process::exit;
 use crate::lexer::bytes_operation::BytesOperation;
 use crate::lexer::lexer::{Lexer, LexerContext};
+use crate::lexer::token::TokenTag;
 
 impl Lexer {
     pub fn context_in_php(&mut self) {
         while let Some(c) = self.current() {
             match c {
-                b'$' => self.match_variable(), //'$..'
+                b'$' => {self.match_variable();}, //'$..'
                 b'"' => {self.context.push(LexerContext::InString);return;}, //'"' double-quoted string
                 b'0'..=b'9' => self.match_number(), // delegiert an eigene Funktion ,
                 b'\'' => self.match_single_q_string(), //"'" single-quoted string
@@ -43,6 +45,19 @@ impl Lexer {
                 _ => {
                     //debug: nicht gematchte zeichen:
                     println!("Not matched: {:?} - {:?}", c as char, self.byte_offset);
+                    //debug some context for the not matched thing:
+                    let mut count = 0;
+
+                    // Sammle Identifier aus den letzten 200 Tokens rückwärts
+                    for token in self.tokens.iter().rev().take(5000) {
+                        count += 1;
+                        if let TokenTag::Identifier(_) = token.tag {
+                            println!("#{count} from end: {:?}", token);
+                        }
+                    }
+                    println!("{:?}", unsafe {self.strquick(17200, 17300)});
+                    exit(1);
+                    println!("Context: {:?}", unsafe { self.strquick(self.byte_offset - 50, self.byte_offset + 50) });
                 }
             }
 

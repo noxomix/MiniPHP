@@ -1,3 +1,6 @@
 <?php
 
-$x = "Hallo ${$y} du nutte $wirsing.";
+$x = "Hallo ${y} du kek $wirsing->gauda.";
+
+$y = "Super $lol";
+kavac();

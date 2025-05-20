@@ -46,7 +46,7 @@ fn main() {
             let tag_name = token.tag.as_ref(); // aus strum
             let slice = &bytes[token.start_position..token.end_position];
             let source = std::str::from_utf8(slice).unwrap_or("<invalid utf8>");
-            if tag_name.contains("Number") {
+            if tag_name.contains("Number") || true {
                 println!("{tag_name} =>");
                 println!("\t{:?}", source);
                 //println!("{:?}", &token.tag);

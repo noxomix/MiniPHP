@@ -710,7 +710,8 @@ function fetchMediaInfo(Array $params) {
 				write_log("We need the latest aired episode...");
 				foreach ($eps as $epCheck) {
 					write_log("Airdate is " . $epCheck['airdate']);
-					if (new DateTime() >= new DateTime($epCheck['airdate'])) {
+					if (new DateTime() >= new DateTime
+					($epCheck['airdate'])) {
 						write_log("This is aired, or airs today.");
 						$ep = $epCheck;
 					}

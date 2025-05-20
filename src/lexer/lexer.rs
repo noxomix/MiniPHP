@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::lexer::bytes_operation::BytesOperation;
 use crate::lexer::token::{DebugPosition, Token, TokenTag};
 
+#[derive(Debug, Clone)]
 pub enum LexerContext {
     InHtml,           // Außerhalb von <?php, in reinem HTML
     InPhp,            // Innerhalb von <?php ... ?>
@@ -14,6 +15,7 @@ pub enum LexerContext {
     InEncapsulated,   // Innerhalb eines doppelt-quoted Strings mit Variablen-Ersatz
     InInterpolation,  // Innerhalb einer ${...} oder "{$var}"-Interpolation
     InDirectInterpolation,
+    InComplexInterpolation,
 }
 
 pub struct Lexer {
@@ -42,13 +44,14 @@ pub trait Tokenizer {
     fn handle_context(&mut self);
     fn push_token(&mut self, tag: TokenTag, start_position: usize);
     fn push_token_withend(&mut self, tag: TokenTag, start_position: usize, end_position: usize);
+    fn pop_token(&mut self);
 }
 impl Tokenizer for Lexer {
     fn tokenize(&mut self) -> Vec<Token> {
         /* Main loop for tokenization */
         loop {
             self.handle_context();
-            if self.peek() == None {
+            if self.current() == None {
               break;
             }
             //todo: if self.errors ... break and debug
@@ -64,7 +67,6 @@ impl Tokenizer for Lexer {
             Some(LexerContext::InCommentLine) => self.context_in_comment_line(),
             Some(LexerContext::InCommentBlock) => self.context_in_comment_block(),
             Some(LexerContext::InString) => self.context_in_dq_string(),
-            Some(LexerContext::InDirectInterpolation) => self.context_in_direct_interpolation(),
             _ => {
                 self.context_in_html()
             }
@@ -81,6 +83,10 @@ impl Tokenizer for Lexer {
         self.tokens.push(
             Token::new(tag, start_position, end_position) //todo: (+) methode die eine individuelle endposition zulässt.
         )
+    }
+    
+    fn pop_token(&mut self) {
+        self.tokens.pop();
     }
 }
 

@@ -9,8 +9,8 @@ pub trait BytesOperation {
     fn next_n(&mut self, n: usize) -> Option<u8>; //mehrere bytes konsumieren
     fn peek(&mut self) -> Option<u8>; //nächstes zeichen schonmal anschauen
     fn peek_n(&mut self, n: usize) -> Option<u8>; //nächste n zeichen ins Vorausschauen
-
     fn exclusive_pos(&self) -> usize;
+    fn reset_to(&mut self, pos: usize) -> Option<u8>;
 
     unsafe fn strquick(&self, start: usize, end: usize) -> String;
     fn strrng(&self, start: usize, end: usize) -> String;
@@ -51,6 +51,11 @@ impl BytesOperation for Lexer {
 
     fn exclusive_pos(&self) -> usize {
         self.byte_offset+1
+    }
+
+    fn reset_to(&mut self, pos: usize) -> Option<u8> {
+        self.byte_offset = pos;
+        self.current()
     }
 
     #[inline(always)]

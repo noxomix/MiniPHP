@@ -3,7 +3,8 @@ use crate::lexer::lexer::{Lexer, Tokenizer};
 use crate::lexer::token::TokenTag;
 
 impl Lexer {
-    pub fn match_variable(&mut self) {
+    /* Der bool gibt an, ob die variable valide ist oder nicht */
+    pub fn match_variable(&mut self) -> bool {
         let start = self.byte_offset;
 
         let mut first = true;
@@ -46,13 +47,15 @@ impl Lexer {
         if valid {
             let value = unsafe { self.strquick(start, self.exclusive_pos()) };
             self.push_token(TokenTag::Variable(value), start);
+            true
         } else {
-            println!("Big error at {}", self.byte_offset);
+            //println!("Big error at {}", self.byte_offset);
+            false
         }
     }
 
     #[inline(always)]
-    fn is_variable_break_byte(b: u8) -> bool {
+    pub(crate) fn is_variable_break_byte(b: u8) -> bool {
         matches!(
             b,
             b' ' | b'\t' | b'\r' | b'\n' |
@@ -68,7 +71,7 @@ impl Lexer {
     }
 
     #[inline(always)]
-    fn decode_utf8_char(bytes: &[u8]) -> Option<(u32, usize)> {
+    pub(crate) fn decode_utf8_char(bytes: &[u8]) -> Option<(u32, usize)> {
         let b0 = *bytes.get(0)?;
         match b0 {
             0x00..=0x7F => Some((b0 as u32, 1)),
@@ -91,7 +94,7 @@ impl Lexer {
     }
 
     #[inline(always)]
-    fn is_php_identifier_char(cp: u32, is_first: bool) -> bool {
+    pub(crate) fn is_php_identifier_char(cp: u32, is_first: bool) -> bool {
         match cp {
             0x0041..=0x005A | // A-Z
             0x0061..=0x007A | // a-z

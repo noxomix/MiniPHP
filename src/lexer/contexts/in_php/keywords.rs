@@ -32,7 +32,7 @@ impl Lexer {
         }
 
         if let Some(end) = last_valid {
-            let ident = unsafe { self.strquick(start, end) }.to_string();
+            let ident = unsafe { self.strquick(start, end+1) }.to_string();
             self.next_n(end - self.byte_offset); // nur bis **vor** dem letzten Zeichen
             self.push_token(TokenTag::Identifier(ident), start);
             // self.current() zeigt jetzt korrekt auf das letzte gültige Zeichen
@@ -128,7 +128,7 @@ pub const KEYWORDS: &[(&[u8], TokenTag)] = &[
     (b"final", TokenTag::AccessModifier(AccessModifierType::Final)),
     (b"abstract", TokenTag::AccessModifier(AccessModifierType::Abstract)),
     (b"readonly", TokenTag::AccessModifier(AccessModifierType::Readonly)),
-    
+
     //Special Numbers
     (b"inf", TokenTag::NumberLiteral),
     (b"nan", TokenTag::NumberLiteral),

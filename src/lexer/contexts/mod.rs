@@ -5,4 +5,6 @@ mod in_comment_block;
 mod in_html;
 
 mod helpers;
-mod in_interpolation;
+mod in_direct_interpolation;
+mod in_complex_interpolation;
+mod interpolation;
